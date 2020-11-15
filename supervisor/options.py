@@ -16,7 +16,6 @@ import platform
 import warnings
 import fcntl
 
-from supervisor.compat import PY2
 from supervisor.compat import ConfigParser
 from supervisor.compat import as_bytes, as_string
 from supervisor.compat import xmlrpclib
@@ -1750,12 +1749,11 @@ class UnhosedConfigParser(ConfigParser.RawConfigParser):
         # inline_comment_prefixes and strict were added in Python 3 but their
         # defaults make RawConfigParser behave differently than it did on
         # Python 2.  We make it work like 2 by default for backwards compat.
-        if not PY2:
-            if 'inline_comment_prefixes' not in kwargs:
-                kwargs['inline_comment_prefixes'] = (';', '#')
+        if 'inline_comment_prefixes' not in kwargs:
+            kwargs['inline_comment_prefixes'] = (';', '#')
 
-            if 'strict' not in kwargs:
-                kwargs['strict'] = False
+        if 'strict' not in kwargs:
+            kwargs['strict'] = False
 
         ConfigParser.RawConfigParser.__init__(self, *args, **kwargs)
 

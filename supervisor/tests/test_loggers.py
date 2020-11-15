@@ -7,7 +7,6 @@ import shutil
 import os
 import syslog
 
-from supervisor.compat import PY2
 from supervisor.compat import as_string
 from supervisor.compat import StringIO
 from supervisor.compat import unicode
@@ -552,43 +551,23 @@ class SyslogHandlerTests(HandlerTests, unittest.TestCase):
         handler = self._makeOne()
         handler.reopen()  # no-op for syslog
 
-    if PY2:
-        @mock.patch('syslog.syslog', MockSysLog())
-        def test_emit_unicode_noerror(self):
-            handler = self._makeOne()
-            inp = as_string('fií')
-            record = self._makeLogRecord(inp)
-            handler.emit(record)
-            syslog.syslog.assert_called_with('fi\xc3\xad')
-        def test_emit_unicode_witherror(self):
-            handler = self._makeOne()
-            called = []
-            def fake_syslog(msg):
-                if not called:
-                    called.append(msg)
-                    raise UnicodeError
-            handler._syslog = fake_syslog
-            record = self._makeLogRecord(as_string('fií'))
-            handler.emit(record)
-            self.assertEqual(called, [as_string('fi\xc3\xad')])
-    else:
-        @mock.patch('syslog.syslog', MockSysLog())
-        def test_emit_unicode_noerror(self):
-            handler = self._makeOne()
-            record = self._makeLogRecord('fií')
-            handler.emit(record)
-            syslog.syslog.assert_called_with('fií')
-        def test_emit_unicode_witherror(self):
-            handler = self._makeOne()
-            called = []
-            def fake_syslog(msg):
-                if not called:
-                    called.append(msg)
-                    raise UnicodeError
-            handler._syslog = fake_syslog
-            record = self._makeLogRecord('fií')
-            handler.emit(record)
-            self.assertEqual(called, ['fií'])
+    @mock.patch('syslog.syslog', MockSysLog())
+    def test_emit_unicode_noerror(self):
+        handler = self._makeOne()
+        record = self._makeLogRecord('fií')
+        handler.emit(record)
+        syslog.syslog.assert_called_with('fií')
+    def test_emit_unicode_witherror(self):
+        handler = self._makeOne()
+        called = []
+        def fake_syslog(msg):
+            if not called:
+                called.append(msg)
+                raise UnicodeError
+        handler._syslog = fake_syslog
+        record = self._makeLogRecord('fií')
+        handler.emit(record)
+        self.assertEqual(called, ['fií'])
 
 class DummyHandler:
     close = False

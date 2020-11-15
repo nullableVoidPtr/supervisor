@@ -16,7 +16,7 @@ from supervisor.tests.base import PopulatedDummySupervisor
 from supervisor.tests.base import _NOW
 from supervisor.tests.base import _TIMEFORMAT
 
-from supervisor.compat import as_string, PY2
+from supervisor.compat import as_string
 from supervisor.datatypes import Automatic
 
 class TestBase(unittest.TestCase):
@@ -2070,12 +2070,8 @@ class SupervisorNamespaceXMLRPCInterfaceTests(TestBase):
         self.assertTrue(result)
         self.assertEqual(len(L), 1)
         event = L[0]
-        if PY2:
-            self.assertEqual(event.type, 'fi\xc3\xad once')
-            self.assertEqual(event.data, 'fi\xc3\xad twice')
-        else:
-            self.assertEqual(event.type, 'fií once')
-            self.assertEqual(event.data, 'fií twice')
+        self.assertEqual(event.type, 'fií once')
+        self.assertEqual(event.data, 'fií twice')
 
 
 class SystemNamespaceXMLRPCInterfaceTests(TestBase):
